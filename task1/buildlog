@@ -1,0 +1,10 @@
+omer@omerd-vm:~/eudyptula/task1$ make
+make -C /lib/modules/4.2.0-35-generic/build M=/home/omer/eudyptula/task1 modules
+make[1]: Entering directory '/usr/src/linux-headers-4.2.0-35-generic'
+  CC [M]  /home/omer/eudyptula/task1/task1.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/omer/eudyptula/task1/task1.mod.o
+  LD [M]  /home/omer/eudyptula/task1/task1.ko
+make[1]: Leaving directory '/usr/src/linux-headers-4.2.0-35-generic'
+
