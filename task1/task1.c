@@ -11,14 +11,17 @@
 #include <linux/module.h>	/* Needed by all modules */
 #include <linux/kernel.h>	/* Needed for KERN_INFO */
 
-int init_module(void)
+int __init initm(void)
 {
 		printk(KERN_INFO "Hello World!\n");
 
 		return 0;
 }
 
-void cleanup_module(void)
+void __exit removem(void)
 {
 		printk(KERN_INFO "unloading module\n");
 }
+
+module_init(initm);
+module_exit(removem);
