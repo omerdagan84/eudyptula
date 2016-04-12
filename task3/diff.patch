@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index a1dec0f..1d0aef0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 4
+ PATCHLEVEL = 6
+ SUBLEVEL = 0
+-EXTRAVERSION = -rc3-eudyptula
++EXTRAVERSION = -rc3
+ NAME = Blurry Fish Butt
+ 
+ # *DOCUMENTATION*
