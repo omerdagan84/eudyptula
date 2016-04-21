@@ -22,7 +22,8 @@ static ssize_t task6_read (struct file *file, char __user *buf,size_t count, lof
 
 	if (copy_to_user(buf, ret_string, sizeof(ret_string)))
 		return -EINVAL;
-	return 0;
+	*ppos = sizeof(ret_string);
+	return *ppos;
 }
 static ssize_t task6_write (struct file *file, const char __user *buf,size_t count, loff_t *ppos)
 {
