@@ -19,6 +19,11 @@ static ssize_t task6_read (struct file *file, char __user *buf,size_t count, lof
 {
 	
 	char ret_string[] = "eudyptula";
+	if (*ppos == sizeof(ret_string))
+		return 0;
+	else
+		if (*ppos != 0 || count < sizeof(ret_string))
+			return -EINVAL;
 
 	if (copy_to_user(buf, ret_string, sizeof(ret_string)))
 		return -EINVAL;
@@ -27,7 +32,14 @@ static ssize_t task6_read (struct file *file, char __user *buf,size_t count, lof
 }
 static ssize_t task6_write (struct file *file, const char __user *buf,size_t count, loff_t *ppos)
 {
-	return 0;
+	char input[10];
+	int ret;
+
+	if (count > 10)
+			return -EINVAL;
+	ret = copy_from_user(input, buf, count);
+	printk(KERN_EMERG "copied from the user %s", input);
+	return count;
 }
 static const struct file_operations task6_fops = {
 	.owner	= THIS_MODULE,
@@ -52,7 +64,8 @@ static int __init task6_init(void)
 
 static void __exit task6_exit(void)
 {
-	        misc_deregister(&eudyptula_dev);
+	printk(KERN_INFO "De-registered eudyptula misc device\n");
+	misc_deregister(&eudyptula_dev);
 }
 
 module_init(task6_init);

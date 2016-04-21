@@ -1,0 +1,8 @@
+[  794.428295] usb 1-2: new full-speed USB device number 4 using ohci-pci
+[  794.884068] usb 1-2: New USB device found, idVendor=045e, idProduct=078c
+[  794.884073] usb 1-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[  794.884076] usb 1-2: Product: USB Keyboard
+[  794.884079] usb 1-2: Manufacturer: LITEON Technology
+[  794.940291] input: LITEON Technology USB Keyboard as /devices/pci0000:00/0000:00:06.0/usb1/1-2/1-2:1.0/0003:045E:078C.0003/input/input8
+[  794.997076] hid-generic 0003:045E:078C.0003: input,hidraw1: USB HID v1.10 Keyboard [LITEON Technology USB Keyboard] on usb-0000:00:06.0-2/input0
+[  795.009349] start task5 module init
