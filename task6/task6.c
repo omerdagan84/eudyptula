@@ -15,10 +15,12 @@
 #include <linux/uaccess.h>
 #include <linux/fs.h>
 
+#define MAX_INPUT_SIZE 20
+
 static ssize_t task6_read (struct file *file, char __user *buf,size_t count, loff_t *ppos)
 {
 	
-	char ret_string[] = "eudyptula";
+	char ret_string[] = "eudyptula\n";
 	if (*ppos == sizeof(ret_string))
 		return 0;
 	else
@@ -32,14 +34,21 @@ static ssize_t task6_read (struct file *file, char __user *buf,size_t count, lof
 }
 static ssize_t task6_write (struct file *file, const char __user *buf,size_t count, loff_t *ppos)
 {
-	char input[10];
+	char input[MAX_INPUT_SIZE];
 	int ret;
 
-	if (count > 10)
+	if (count > MAX_INPUT_SIZE)
 			return -EINVAL;
-	ret = copy_from_user(input, buf, count);
-	printk(KERN_EMERG "copied from the user %s", input);
-	return count;
+	ret = copy_from_user(input, buf, count - 1);
+	printk(KERN_EMERG "copied from the user %s count=%lu", input, count);
+	if (strncmp(input, "omerdagan", count)) {
+		printk(KERN_EMERG "entered wrong input");
+		return -EINVAL;
+	} else {
+		printk(KERN_EMERG "input acceptable");
+	}
+	return count + 1;
+
 }
 static const struct file_operations task6_fops = {
 	.owner	= THIS_MODULE,
