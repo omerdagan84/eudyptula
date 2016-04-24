@@ -1,12 +1,12 @@
 /*
- *   task6.c - Task 6 eudyptula.						
- *   create a loadable kernel module and makefile		
+ *   task6.c - Task 6 eudyptula.
+ *   create a loadable kernel module and makefile
  *   module will open a misc device /dev/eudyptula
- *															
- *		Author: Omer Dagan								
- *		Date: 21.4.16									
- *		mail: omer.dagan@tandemg.com					
- *		based on: http://linux.die.net/lkmpg/x121.html	
+ *
+ *		Author: Omer Dagan
+ *		Date: 21.4.16
+ *		mail: omer.dagan@tandemg.com
+ *		based on: http://linux.die.net/lkmpg/x121.html
 */
 
 #include <linux/module.h>	/* Needed by all modules */
@@ -17,10 +17,11 @@
 
 #define MAX_INPUT_SIZE 20
 
-static ssize_t task6_read (struct file *file, char __user *buf,size_t count, loff_t *ppos)
+static ssize_t task6_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
-	
+
 	char ret_string[] = "eudyptula\n";
+
 	if (*ppos == sizeof(ret_string))
 		return 0;
 	else
@@ -32,20 +33,22 @@ static ssize_t task6_read (struct file *file, char __user *buf,size_t count, lof
 	*ppos = sizeof(ret_string);
 	return *ppos;
 }
-static ssize_t task6_write (struct file *file, const char __user *buf,size_t count, loff_t *ppos)
+
+static ssize_t task6_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
 	char input[MAX_INPUT_SIZE];
 	int ret;
 
 	if (count > MAX_INPUT_SIZE)
-			return -EINVAL;
-	ret = copy_from_user(input, buf, count - 1);
-	printk(KERN_EMERG "copied from the user %s count=%lu", input, count);
-	if (strncmp(input, "omerdagan", count)) {
-		printk(KERN_EMERG "entered wrong input");
+		return -EINVAL;
+	ret = copy_from_user(input, buf, count);
+	pr_info("copied from the user %s count=%lu", input, count);
+	input[strcspn(input, "\r\n")] = '\0';
+	if (strncmp(input, "acef8c84aaa6\0", count)) {
+		pr_info("entered wrong input");
 		return -EINVAL;
 	} else {
-		printk(KERN_EMERG "input acceptable");
+		pr_debug("input acceptable");
 	}
 	return count + 1;
 
@@ -63,17 +66,18 @@ static struct miscdevice eudyptula_dev = {
 static int __init task6_init(void)
 {
 	int ret;
+
 	ret = misc_register(&eudyptula_dev);
 	if (ret)
-		printk(KERN_ERR "Unable to register eudyptula misc device\n");
+		pr_debug("Unable to register eudyptula misc device\n");
 	else
-		printk(KERN_INFO "Registered eudyptula misc device\n");
-    return ret;
+		pr_debug("Registered eudyptula misc device\n");
+	return ret;
 }
 
 static void __exit task6_exit(void)
 {
-	printk(KERN_INFO "De-registered eudyptula misc device\n");
+	pr_debug("De-registered eudyptula misc device\n");
 	misc_deregister(&eudyptula_dev);
 }
 
