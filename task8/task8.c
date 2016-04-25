@@ -5,7 +5,7 @@
  *   1. create subdirectory 'eudyptula'
  *   2. create a file called 'id' mode 666 - same as task6
  *   3. add a file called 'jiffies'mode 444 - read return kernel jiffies
- *   4. add a file 'foo' mode 644 - write data upto a PAGE size, 
+ *   4. add a file 'foo' mode 644 - write data upto a PAGE size,
  *			read return the value
  *
  *
@@ -26,7 +26,7 @@
 #include <linux/slab.h>
 
 #define MAX_INPUT_SIZE 20
-static struct dentry *debug_dir = NULL;
+static struct dentry *debug_dir;
 static spinlock_t fops_lock;
 static char *foo_data;
 
@@ -36,8 +36,7 @@ static ssize_t foo_read(struct file *file, char __user *buf, size_t count, loff_
 	if (*ppos == strlen(foo_data)) {
 		spin_unlock(&fops_lock);
 		return 0;
-	}
-	else
+	} else
 		if (*ppos != 0 || count < strlen(foo_data))
 			goto err;
 
@@ -72,7 +71,7 @@ static const struct file_operations foo_fops = {
 	.write	= foo_write,
 };
 
-static ssize_t task8_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+static ssize_t id_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
 
 	char ret_string[] = "eudyptula\n";
@@ -89,7 +88,7 @@ static ssize_t task8_read(struct file *file, char __user *buf, size_t count, lof
 	return *ppos;
 }
 
-static ssize_t task8_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+static ssize_t id_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
 	char input[MAX_INPUT_SIZE];
 	int ret;
@@ -108,10 +107,10 @@ static ssize_t task8_write(struct file *file, const char __user *buf, size_t cou
 	return count + 1;
 
 }
-static const struct file_operations task8_fops = {
+static const struct file_operations id_fops = {
 	.owner	= THIS_MODULE,
-	.read	= task8_read,
-	.write	= task8_write,
+	.read	= id_read,
+	.write	= id_write,
 };
 
 
@@ -120,7 +119,8 @@ static ssize_t jiffies_read(struct file *file, char __user *buf, size_t count, l
 
 	char ret_string[25];
 	int str_size;
-	str_size = sprintf(ret_string, "%lu", jiffies);	
+
+	str_size = sprintf(ret_string, "%lu", jiffies);
 
 	if (*ppos == str_size)
 		return 0;
@@ -146,16 +146,16 @@ static int __init task8_init(void)
 	struct dentry *debug_entry = NULL;
 
 	/*create the debugfs directory*/
-	debug_dir = debugfs_create_dir("eudyptula",NULL);
+	debug_dir = debugfs_create_dir("eudyptula", NULL);
 	if (!debug_dir) {
 		pr_info("could not create dir - exiting...");
 		return -ENODEV;
 	}
 
-	debug_entry = debugfs_create_file("id", 0666, debug_dir, NULL, &task8_fops);
+	debug_entry = debugfs_create_file("id", 0666, debug_dir, NULL, &id_fops);
 	if (!debug_entry)
 		goto cleanup_debugfs;
-	
+
 	debug_entry = debugfs_create_file("jiffies", 0444, debug_dir, NULL, &jiffies_fops);
 	if (!debug_entry)
 		goto cleanup_debugfs;
@@ -166,7 +166,7 @@ static int __init task8_init(void)
 	debug_entry = debugfs_create_file("foo", 0644, debug_dir, NULL, &foo_fops);
 	if (!debug_entry)
 		goto cleanup_debugfs;
-	
+
 	pr_info("initialising task8 module - success");
 	return 0;
 cleanup_debugfs:
