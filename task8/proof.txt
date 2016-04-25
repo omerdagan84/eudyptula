@@ -1,0 +1,18 @@
+-rw-r--r-- 1 root root 0 אפר 25 16:28 foo
+-rw-rw-rw- 1 root root 0 אפר 25 16:27 id
+-r--r--r-- 1 root root 0 אפר 25 16:27 jiffies
+
+
+foo:
+root@omer-VM-ubuntu:/sys/kernel/debug/eudyptula# echo abc > foo 
+root@omer-VM-ubuntu:/sys/kernel/debug/eudyptula# cat foo 
+abc
+
+id:
+root@omer-VM-ubuntu:/sys/kernel/debug/eudyptula# echo dsa > id
+bash: echo: write error: Invalid argument
+root@omer-VM-ubuntu:/sys/kernel/debug/eudyptula# echo acef8c84aaa6 > id
+
+jiffies:
+root@omer-VM-ubuntu:/sys/kernel/debug/eudyptula# cat jiffies 
+4298205973

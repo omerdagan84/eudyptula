@@ -1,0 +1,27 @@
+From 1225dd8b02e0f13ae0094797a9d5accb61715139 Mon Sep 17 00:00:00 2001
+From: Ramon Fried <ramon.fried@gmail.com>
+Date: Mon, 25 Apr 2016 14:51:33 +0300
+Subject: [PATCH 1/5] modified Makefile to fit task8
+
+---
+ task8/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/task8/Makefile b/task8/Makefile
+index a2dcbac..8718c35 100644
+--- a/task8/Makefile
++++ b/task8/Makefile
+@@ -7,8 +7,8 @@
+ #################################################################
+ 
+ 
+-obj-m += task6.o
+-CFLAGS_task6.o := -DDEBUG
++obj-m += task8.o
++CFLAGS_task8.o := -DDEBUG
+ all:
+ 		make  -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+ 
+-- 
+2.5.0
+
