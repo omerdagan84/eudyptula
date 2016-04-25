@@ -3,4 +3,4 @@ Module*
 module*
 *.o
 *.mod*
-
+*.ko
