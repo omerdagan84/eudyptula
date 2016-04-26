@@ -22,22 +22,22 @@
 #include <linux/fs.h>
 #include <linux/debugfs.h>
 #include <linux/jiffies.h>
-#include <linux/semaphore.h>
+#include <linux/mutex.h>
 #include <linux/slab.h>
 
 #define MAX_INPUT_SIZE 20
 static struct dentry *debug_dir;
 static char *foo_data;
 
-DEFINE_SEMAPHORE(fops_lock);
+DEFINE_MUTEX(fops_lock);
 
 static ssize_t foo_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
-	if (down_interruptible(&fops_lock))
+	if (mutex_lock_interruptible(&fops_lock))
 		return -EINTR;
 
 	if (*ppos == strlen(foo_data)) {
-		up(&fops_lock);
+		mutex_unlock(&fops_lock);
 		return 0;
 	} else
 		if (*ppos != 0 || count < strlen(foo_data))
@@ -47,10 +47,10 @@ static ssize_t foo_read(struct file *file, char __user *buf, size_t count, loff_
 		goto err;
 
 	*ppos = strlen(foo_data);
-	up(&fops_lock);
+	mutex_unlock(&fops_lock);
 	return *ppos;
 err:
-	up(&fops_lock);
+	mutex_unlock(&fops_lock);
 	return -EINVAL;
 }
 
@@ -58,7 +58,7 @@ static ssize_t foo_write(struct file *file, const char __user *buf, size_t count
 {
 	int ret;
 
-	if (down_interruptible(&fops_lock))
+	if (mutex_lock_interruptible(&fops_lock))
 		return -EINTR;
 
 	if (count > PAGE_SIZE)
@@ -66,7 +66,7 @@ static ssize_t foo_write(struct file *file, const char __user *buf, size_t count
 	ret = copy_from_user(foo_data, buf, count);
 	pr_info("copied from the user %s count=%lu", foo_data, count);
 
-	up(&fops_lock);
+	mutex_unlock(&fops_lock);
 	return count;
 
 }
