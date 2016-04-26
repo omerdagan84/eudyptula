@@ -70,6 +70,33 @@ static const struct file_operations id_fops = {
 	.write	= id_write,
 };
 
+static ssize_t jiffies_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+{
+
+	char ret_string[25];
+	int str_size;
+
+	str_size = sprintf(ret_string, "%lu", jiffies);
+
+	if (*ppos == str_size)
+		return 0;
+	else
+		if (*ppos != 0 || count < str_size)
+			return -EINVAL;
+
+	if (copy_to_user(buf, ret_string, str_size))
+		return -EINVAL;
+
+	*ppos = str_size;
+	return *ppos;
+}
+
+static const struct file_operations jiffies_fops = {
+	.owner	= THIS_MODULE,
+	.read	= jiffies_read,
+	.write	= NULL,
+};
+
 static int __init task8_init(void)
 {
 	struct dentry *debug_entry = NULL;
@@ -82,6 +109,10 @@ static int __init task8_init(void)
 	}
 
 	debug_entry = debugfs_create_file("id", 0666, debug_dir, NULL, &id_fops);
+	if (!debug_entry)
+		goto cleanup_debugfs;
+
+	debug_entry = debugfs_create_file("jiffies", 0444, debug_dir, NULL, &jiffies_fops);
 	if (!debug_entry)
 		goto cleanup_debugfs;
 
