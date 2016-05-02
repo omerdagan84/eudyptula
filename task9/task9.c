@@ -12,7 +12,7 @@
  *		Author: Omer Dagan
  *		Date: 26.4.16
  *		mail: omer.dagan@tandemg.com
- *		based on: kobject_example.c 
+ *		based on: kobject_example.c
 */
 
 #include <linux/module.h>	/* Needed by all modules */
@@ -33,6 +33,7 @@ DEFINE_MUTEX(fops_lock);
 static ssize_t foo_read(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	int ret;
+
 	if (mutex_lock_interruptible(&fops_lock))
 		return -EINTR;
 	ret = sprintf(buf, "%s\n", foo_data);
