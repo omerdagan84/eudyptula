@@ -22,19 +22,21 @@
 #include <linux/fs.h>
 #include <linux/debugfs.h>
 #include <linux/jiffies.h>
-#include <linux/spinlock.h>
+#include <asm/semaphore.h>
 #include <linux/slab.h>
 
 #define MAX_INPUT_SIZE 20
 static struct dentry *debug_dir;
-static spinlock_t fops_lock;
+static struct semaphore fops_lock;
 static char *foo_data;
 
 static ssize_t foo_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
-	spin_lock(&fops_lock);
+	if (down_interruptible(&fops_lock))
+		return -EINTR;
+
 	if (*ppos == strlen(foo_data)) {
-		spin_unlock(&fops_lock);
+		up(&fops_lock);
 		return 0;
 	} else
 		if (*ppos != 0 || count < strlen(foo_data))
@@ -44,10 +46,10 @@ static ssize_t foo_read(struct file *file, char __user *buf, size_t count, loff_
 		goto err;
 
 	*ppos = strlen(foo_data);
-	spin_unlock(&fops_lock);
+	up(&fops_lock);
 	return *ppos;
 err:
-	spin_unlock(&fops_lock);
+	up(&fops_lock);
 	return -EINVAL;
 }
 
@@ -55,13 +57,15 @@ static ssize_t foo_write(struct file *file, const char __user *buf, size_t count
 {
 	int ret;
 
-	spin_lock(&fops_lock);
+	if (down_interruptible(&fops_lock))
+		return -EINTR;
+
 	if (count > PAGE_SIZE)
 		return -EINVAL;
 	ret = copy_from_user(foo_data, buf, count);
 	pr_info("copied from the user %s count=%lu", foo_data, count);
 
-	spin_unlock(&fops_lock);
+	up(&fops_lock);
 	return count;
 
 }
@@ -160,16 +164,19 @@ static int __init task8_init(void)
 	if (!debug_entry)
 		goto cleanup_debugfs;
 
-	spin_lock_init(&fops_lock);
+	init_MUTEX(&fops_lock);
 	foo_data = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL);
 
 	debug_entry = debugfs_create_file("foo", 0644, debug_dir, NULL, &foo_fops);
 	if (!debug_entry)
-		goto cleanup_debugfs;
+		goto cleanup_mem;
 
 	pr_info("initialising task8 module - success");
 	return 0;
+cleanup_mem:
+	kfree(foo_data);
 cleanup_debugfs:
+	debugfs_remove_recursive(debug_dir);
 	return -EINVAL;
 }
 
