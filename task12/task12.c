@@ -14,6 +14,10 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 
+const char *cache_name = "eud";
+
+struct kmem_cache *eud_cache;
+
 struct identity {
 	char  name[20];
 	int   id;
@@ -39,7 +43,7 @@ int identity_create(char *name, int id)
 {
 	struct identity *temp;
 
-	temp = kmalloc(sizeof(struct identity), GFP_KERNEL);
+	temp = kmem_cache_alloc(eud_cache, GFP_KERNEL);
 	if (!temp)
 		return -ENOMEM;
 
@@ -60,7 +64,7 @@ void identity_destroy(int id)
 		tmp = list_entry(pos, struct identity, list);
 			if (tmp->id == id) {
 				list_del(pos);
-				kfree(tmp);
+				kmem_cache_free(eud_cache, tmp);
 				return;
 		}
 	}
@@ -72,6 +76,11 @@ int __init initm(void)
 	int err;
 
 	pr_info("module loading");
+
+	eud_cache = kmem_cache_create(cache_name, sizeof(struct identity), 0, SLAB_HWCACHE_ALIGN | SLAB_POISON, NULL);
+	if (!eud_cache)
+		return -ENOMEM;
+
 	INIT_LIST_HEAD(&list_main.list);
 
 	err = identity_create("Alice", 1);
@@ -113,8 +122,11 @@ void __exit removem(void)
 	list_for_each_safe(pos, q, &list_main.list) {
 		temp = list_entry(pos, struct identity, list);
 		list_del(pos);
-		kfree(temp);
+		kmem_cache_free(eud_cache, temp);
 	}
+	if (eud_cache)
+		kmem_cache_destroy(eud_cache);
+	pr_info("cache freed exiting\n");
 }
 
 module_init(initm);
