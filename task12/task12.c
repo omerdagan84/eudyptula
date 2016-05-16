@@ -77,7 +77,7 @@ int __init initm(void)
 
 	pr_info("module loading");
 
-	eud_cache = kmem_cache_create(cache_name, sizeof(struct identity), 0, SLAB_HWCACHE_ALIGN | SLAB_POISON, NULL);
+	eud_cache = KMEM_CACHE(identity, SLAB_POISON);
 	if (!eud_cache)
 		return -ENOMEM;
 
