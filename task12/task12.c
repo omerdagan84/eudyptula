@@ -47,6 +47,7 @@ int identity_create(char *name, int id)
 	if (!temp)
 		return -ENOMEM;
 
+	pr_info("unloading module\n");
 	strcpy(temp->name, name);
 	temp->id = id;
 	temp->busy = false;
