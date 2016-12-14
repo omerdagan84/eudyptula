@@ -35,6 +35,13 @@ static ssize_t task17_write(struct file *file, const char __user *buf, size_t co
 		return -EINVAL;
 	ret = copy_from_user(input, buf, count);
 	pr_info("copied from the user %s count=%lu", input, count);
+/*	input[strcspn(input, "\r\n")] = '\0';
+	if (strncmp(input, "acef8c84aaa6\0", count)) {
+		pr_info("entered wrong input");
+		return -EINVAL;
+	} else {
+		pr_debug("input acceptable");
+	}*/
 	return count + 1;
 
 }
