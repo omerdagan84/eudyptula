@@ -65,24 +65,26 @@ static int __init task17_init(void)
 {
 	int ret;
 
+	/* Initialize the wait queue */
 	init_waitqueue_head(&task_ctx.wee_wait);
-	task_ctx.f_wait = 0;
 
-	ret = misc_register(&eudyptula_dev);
-	if (ret) {
-		pr_debug("Unable to register eudyptula misc device\n");
-		return ret;	
-	} else {
-		pr_debug("Registered eudyptula misc device\n");
-	}
-	
-	task_ctx.task_thread = kthread_create(run_thread, NULL, "eudyptula");
+	/* Setup the thread */
+	task_ctx.f_wait = 0; //condition for wait on queue
+	task_ctx.task_thread = kthread_create(run_thread, NULL, "eudyptula"); //thread is stopped
 	if (IS_ERR(task_ctx.task_thread)) {
 		ret = PTR_ERR(task_ctx.task_thread);
 		return ret;
 	}
 	get_task_struct(task_ctx.task_thread);
-	wake_up_process(task_ctx.task_thread);
+	wake_up_process(task_ctx.task_thread); //start the thread - and wait on wait queue
+
+	ret = misc_register(&eudyptula_dev); // register the misc device
+	if (ret) {
+		pr_debug("Unable to register eudyptula misc device\n");
+		return ret;
+	} else {
+		pr_debug("Registered eudyptula misc device\n");
+	}
 
 	return ret;
 }
