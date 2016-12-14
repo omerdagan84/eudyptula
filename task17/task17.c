@@ -35,13 +35,6 @@ static ssize_t task17_write(struct file *file, const char __user *buf, size_t co
 		return -EINVAL;
 	ret = copy_from_user(input, buf, count);
 	pr_info("copied from the user %s count=%lu", input, count);
-/*	input[strcspn(input, "\r\n")] = '\0';
-	if (strncmp(input, "acef8c84aaa6\0", count)) {
-		pr_info("entered wrong input");
-		return -EINVAL;
-	} else {
-		pr_debug("input acceptable");
-	}*/
 	return count + 1;
 
 }
@@ -63,7 +56,7 @@ static int run_thread(void *arg)
 	int rc;
 
 	pr_debug("thread - starting wait on \"wee-wait\"\n");
-	wait_event(task_ctx.wee_wait, task_ctx.f_wait);
+	wait_event_killable(task_ctx.wee_wait, task_ctx.f_wait);
 	pr_debug("thread - done wait on \"wee-wait\"\n");
 	return 0;
 }
@@ -77,13 +70,11 @@ static int __init task17_init(void)
 
 	/* Setup the thread */
 	task_ctx.f_wait = 0; //condition for wait on queue
-	task_ctx.task_thread = kthread_create(run_thread, NULL, "eudyptula"); //thread is stopped
+	task_ctx.task_thread = kthread_run(run_thread, NULL, "eudyptula"); //thread is stopped
 	if (IS_ERR(task_ctx.task_thread)) {
 		ret = PTR_ERR(task_ctx.task_thread);
 		return ret;
 	}
-	get_task_struct(task_ctx.task_thread);
-	wake_up_process(task_ctx.task_thread); //start the thread - and wait on wait queue
 
 	ret = misc_register(&eudyptula_dev); // register the misc device
 	if (ret) {
