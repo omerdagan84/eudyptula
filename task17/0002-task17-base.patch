@@ -1,0 +1,175 @@
+From 65b76b65ca4f1d0d0de6a041586275638282b03c Mon Sep 17 00:00:00 2001
+From: Omer Dagan <omer.dagan@tandemg.com>
+Date: Sun, 11 Sep 2016 17:08:51 +0300
+Subject: [PATCH 2/4] task17 - base
+
+---
+ task17/Makefile     |  16 +++++++++
+ task17/runscript.sh |  24 +++++++++++++
+ task17/task17.c     | 100 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 140 insertions(+)
+ create mode 100644 task17/Makefile
+ create mode 100755 task17/runscript.sh
+ create mode 100644 task17/task17.c
+
+diff --git a/task17/Makefile b/task17/Makefile
+new file mode 100644
+index 0000000..1e476c9
+--- /dev/null
++++ b/task17/Makefile
+@@ -0,0 +1,16 @@
++#################################################################
++#	eudyptula - task17 - Makefile								#
++#																#
++#	Author: Omer Dagan											#
++#	Date: 11.9.16												#
++#	Based on: http://www.tldp.org/LDP/lkmpg/2.6/html/x181.html	#											
++#################################################################
++
++
++obj-m += task17.o
++CFLAGS_task17.o := -DDEBUG
++all:
++		make  -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
++
++clean:
++		make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+diff --git a/task17/runscript.sh b/task17/runscript.sh
+new file mode 100755
+index 0000000..22b72c1
+--- /dev/null
++++ b/task17/runscript.sh
+@@ -0,0 +1,24 @@
++#!/bin/bash
++
++echo "insert module"
++sudo insmod task6.ko &&
++
++echo "change read/write permissions" &&
++sudo chmod 666 /dev/eudyptula
++
++echo "test read operation"
++cat /dev/eudyptula
++
++echo "test write operation - wrong value"
++echo "echo omerdaagn > /dev/eudyptula"
++echo omerdaagn > /dev/eudyptula
++
++echo "test write operation - correct value"
++echo "echo omerdagan > /dev/eudyptula"
++echo acef8c84aaa6 > /dev/eudyptula
++
++echo "show the kernel log to prove operation"
++dmesg
++
++echo "remove the module"
++sudo rmmod task6
+diff --git a/task17/task17.c b/task17/task17.c
+new file mode 100644
+index 0000000..f2a0307
+--- /dev/null
++++ b/task17/task17.c
+@@ -0,0 +1,100 @@
++/*
++ *   task6.c - Task 6 eudyptula.
++ *   create a loadable kernel module and makefile
++ *   module will open a misc device /dev/eudyptula
++ *
++ *		Author: Omer Dagan
++ *		Date: 21.4.16
++ *		mail: omer.dagan@tandemg.com
++ *		based on: http://linux.die.net/lkmpg/x121.html
++*/
++
++#include <linux/module.h>	/* Needed by all modules */
++#include <linux/kernel.h>	/* Needed for KERN_INFO */
++#include <linux/miscdevice.h>
++#include <linux/uaccess.h>
++#include <linux/fs.h>
++#include <linux/wait.h>
++#include <linux/kthread.h>
++
++#define MAX_INPUT_SIZE 20
++
++struct task_context {
++	struct task_struct *task_thread;
++	wait_queue_head_t	wee_wait;
++	int					f_wait;
++};
++static struct task_context task_ctx;
++
++static ssize_t task17_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
++{
++	char input[MAX_INPUT_SIZE];
++	int ret;
++
++	if (count > MAX_INPUT_SIZE)
++		return -EINVAL;
++	ret = copy_from_user(input, buf, count);
++	pr_info("copied from the user %s count=%lu", input, count);
++	return count + 1;
++
++}
++
++static const struct file_operations task17_fops = {
++	.owner	= THIS_MODULE,
++	.write	= task17_write,
++};
++
++static struct miscdevice eudyptula_dev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "eudyptula",
++	.fops = &task17_fops,
++	.mode = S_IWUGO
++};
++
++static int run_thread(void *arg)
++{
++	int rc;
++
++	pr_debug("thread - starting wait on \"wee-wait\"\n");
++	wait_event(task_ctx.wee_wait, task_ctx.f_wait);
++	pr_debug("thread - done wait on \"wee-wait\"\n");
++	return 0;
++}
++
++static int __init task17_init(void)
++{
++	int ret;
++
++	init_waitqueue_head(&task_ctx.wee_wait);
++	task_ctx.f_wait = 0;
++
++	ret = misc_register(&eudyptula_dev);
++	if (ret) {
++		pr_debug("Unable to register eudyptula misc device\n");
++		return ret;	
++	} else {
++		pr_debug("Registered eudyptula misc device\n");
++	}
++	
++	task_ctx.task_thread = kthread_create(run_thread, NULL, "eudyptula");
++	if (IS_ERR(task_ctx.task_thread)) {
++		ret = PTR_ERR(task_ctx.task_thread);
++		return ret;
++	}
++	get_task_struct(task_ctx.task_thread);
++	wake_up_process(task_ctx.task_thread);
++
++	return ret;
++}
++
++static void __exit task17_exit(void)
++{
++	pr_debug("De-registered eudyptula misc device\n");
++	task_ctx.f_wait = 1;
++	wake_up_all(&task_ctx.wee_wait);
++
++	misc_deregister(&eudyptula_dev);
++}
++
++module_init(task17_init);
++module_exit(task17_exit);
+-- 
+2.5.0
+
