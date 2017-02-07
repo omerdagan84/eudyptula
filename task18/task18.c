@@ -16,8 +16,17 @@
 #include <linux/fs.h>
 #include <linux/wait.h>
 #include <linux/kthread.h>
+#include <linux/list.h>
+#include <linux/slab.h>
+#include <linux/delay.h>
+#include <linux/spinlock.h>
 
 #define MAX_INPUT_SIZE 19
+
+static int id_counter;
+const char *cache_name = "eud";
+
+struct kmem_cache *eud_cache;
 
 struct identity {
 	char  name[20];
@@ -31,6 +40,7 @@ struct task_context {
 	struct task_struct *task_thread;
 	wait_queue_head_t	wee_wait;
 	int					f_wait;
+	spinlock_t			lock;
 };
 static struct task_context task_ctx;
 
@@ -55,11 +65,11 @@ static int identity_create(char *name, int id)
 	if (!temp)
 		return -ENOMEM;
 
-	pr_info("unloading module\n");
 	strcpy(temp->name, name);
 	temp->id = id;
 	temp->busy = false;
 
+	pr_info("creating identity - name: '%s', id: '%d'\n", temp->name, temp->id);
 	list_add(&(temp->list), &(list_main.list));
 	return 0;
 }
@@ -79,48 +89,95 @@ static void identity_destroy(int id)
 	}
 }
 
-static ssize_t task17_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+static struct identity *identity_get(void)
+{
+	struct list_head *pos, *q;
+	struct identity *tmp;
+
+	if (list_empty(&list_main.list))
+		return NULL;
+
+	list_for_each_safe(pos, q, &list_main.list) {
+		tmp = list_entry(pos, struct identity, list);
+		list_del(pos);
+		break;
+	}
+	pr_info("%s : got entry - name: '%s' id: '%d'\n", __func__, tmp->name, tmp->id);
+	return tmp;
+}
+
+static ssize_t task18_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
 	char input[MAX_INPUT_SIZE];
 	int ret;
 
 	if (count > MAX_INPUT_SIZE)
-		return -EINVAL;
-	ret = copy_from_user(input, buf, count);
-	pr_info("copied from the user %s count=%lu", input, count);
+		ret = copy_from_user(input, buf, MAX_INPUT_SIZE);
+	else
+		ret = copy_from_user(input, buf, count - 1);
+
+	spin_lock(&task_ctx.lock);
+	ret = identity_create(input, id_counter++);
+
+	task_ctx.f_wait++;
+	spin_unlock(&task_ctx.lock);
+	wake_up_all(&task_ctx.wee_wait);
+
+	pr_info("copied from the user %s count=%lu and woke-up the thread\n", input, count);
 	return count + 1;
 
 }
 
-static const struct file_operations task17_fops = {
+static const struct file_operations task18_fops = {
 	.owner	= THIS_MODULE,
-	.write	= task17_write,
+	.write	= task18_write,
 };
 
 static struct miscdevice eudyptula_dev = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = "eudyptula",
-	.fops = &task17_fops,
+	.fops = &task18_fops,
 	.mode = S_IWUGO
 };
 
 static int run_thread(void *arg)
 {
 	int rc;
-
+	struct identity *id_to_display = NULL;
+wait_on:
 	pr_debug("thread - starting wait on \"wee-wait\"\n");
-	wait_event_killable(task_ctx.wee_wait, task_ctx.f_wait);
-	pr_debug("thread - done wait on \"wee-wait\"\n");
+	rc = wait_event_killable(task_ctx.wee_wait, task_ctx.f_wait);
+	/* check if the wait was interrupted */
+	if (rc == -ERESTARTSYS)
+		return rc;
+	while (task_ctx.f_wait) {
+		spin_lock(&task_ctx.lock);
+		id_to_display = identity_get();
+		if (!id_to_display)
+			return -1;
+		msleep_interruptible(5 * 1000);
+		pr_debug("thread finished sleep\n");
+		pr_emerg("IDENTITY OUTPUT :\n   name:'%s'\n   id:'%d'", id_to_display->name, id_to_display->id);
+		kmem_cache_free(eud_cache, id_to_display);
+		task_ctx.f_wait--;
+		spin_unlock(&task_ctx.lock);
+	}
+	goto wait_on;
 	return 0;
 }
 
-static int __init task17_init(void)
+static int __init task18_init(void)
 {
 	int ret;
 
 	/* Initialize the wait queue */
 	init_waitqueue_head(&task_ctx.wee_wait);
 	INIT_LIST_HEAD(&list_main.list);
+	spin_lock_init(&task_ctx.lock);
+
+	eud_cache = KMEM_CACHE(identity, SLAB_POISON);
+	if (!eud_cache)
+		return -ENOMEM;
 
 	/* Setup the thread */
 	task_ctx.f_wait = 0; /*condition for wait on queue*/
@@ -130,6 +187,7 @@ static int __init task17_init(void)
 		return ret;
 	}
 
+	id_counter = 0;
 	ret = misc_register(&eudyptula_dev); /* register the misc device*/
 	if (ret) {
 		pr_debug("Unable to register eudyptula misc device\n");
@@ -141,14 +199,31 @@ static int __init task17_init(void)
 	return ret;
 }
 
-static void __exit task17_exit(void)
+static void __exit task18_exit(void)
 {
+	struct identity *temp;
+	struct list_head *pos, *q;
+
 	pr_debug("De-registered eudyptula misc device\n");
+	misc_deregister(&eudyptula_dev);
+
+	pr_debug("waking-up thread for termination execution\n");
+	spin_lock(&task_ctx.lock);
 	task_ctx.f_wait = 1;
+	spin_unlock(&task_ctx.lock);
 	wake_up_all(&task_ctx.wee_wait);
 
-	misc_deregister(&eudyptula_dev);
+	pr_info("clearing the identity list\n");
+	list_for_each_safe(pos, q, &list_main.list) {
+		temp = list_entry(pos, struct identity, list);
+		pr_info("list cleaning: temp->name '%s' temp->id '%d'\n", temp->name, temp->id);
+		list_del(pos);
+		kmem_cache_free(eud_cache, temp);
+	}
+	kmem_cache_destroy(eud_cache);
+
+	pr_info("module removed!!\n");
 }
 
-module_init(task17_init);
-module_exit(task17_exit);
+module_init(task18_init);
+module_exit(task18_exit);
