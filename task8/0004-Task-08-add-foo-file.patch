@@ -83,7 +83,7 @@ index f1d323c..cfdf0fb 100644
 +	struct dentry *debug_entry = NULL;
 +
  	/*create the debugfs directory*/
- 	debug_dir = debugfs_create_dir("eudyptula",NULL);
+ 	debug_dir = debugfs_create_dir("kerneltask",NULL);
  	if (!debug_dir) {
 @@ -104,14 +152,21 @@ static int __init task8_init(void)
  		return -ENODEV;
@@ -114,7 +114,7 @@ index f1d323c..cfdf0fb 100644
 @@ -121,6 +176,7 @@ cleanup_debugfs:
  static void __exit task8_exit(void)
  {
- 	pr_debug("De-registered eudyptula debugfs module\n");
+ 	pr_debug("De-registered kerneltask debugfs module\n");
 +	kfree(foo_data);
  	debugfs_remove_recursive(debug_dir);
  }

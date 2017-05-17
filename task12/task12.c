@@ -1,5 +1,5 @@
 /*
- *   task12.c - Task 12 eudyptula.
+ *   task12.c - Task 12 kerneltask.
  *   create a loadable kernel module and makefile
  *
  *		Author: Omer Dagan

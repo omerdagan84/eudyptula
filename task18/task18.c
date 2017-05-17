@@ -1,7 +1,7 @@
 /*
- *   task18.c - Task 18 eudyptula.
+ *   task18.c - Task 18 kerneltask.
  *   create a loadable kernel module and makefile
- *   module will open a misc device /dev/eudyptula
+ *   module will open a misc device /dev/kerneltask
  *
  *		Author: Omer Dagan
  *		Date: 02.01.17
@@ -133,9 +133,9 @@ static const struct file_operations task18_fops = {
 	.write	= task18_write,
 };
 
-static struct miscdevice eudyptula_dev = {
+static struct miscdevice kerneltask_dev = {
 	.minor = MISC_DYNAMIC_MINOR,
-	.name = "eudyptula",
+	.name = "kerneltask",
 	.fops = &task18_fops,
 	.mode = S_IWUGO
 };
@@ -181,19 +181,19 @@ static int __init task18_init(void)
 
 	/* Setup the thread */
 	task_ctx.f_wait = 0; /*condition for wait on queue*/
-	task_ctx.task_thread = kthread_run(run_thread, NULL, "eudyptula"); /*thread is stopped*/
+	task_ctx.task_thread = kthread_run(run_thread, NULL, "kerneltask"); /*thread is stopped*/
 	if (IS_ERR(task_ctx.task_thread)) {
 		ret = PTR_ERR(task_ctx.task_thread);
 		return ret;
 	}
 
 	id_counter = 0;
-	ret = misc_register(&eudyptula_dev); /* register the misc device*/
+	ret = misc_register(&kerneltask_dev); /* register the misc device*/
 	if (ret) {
-		pr_debug("Unable to register eudyptula misc device\n");
+		pr_debug("Unable to register kerneltask misc device\n");
 		return ret;
 	} else {
-		pr_debug("Registered eudyptula misc device\n");
+		pr_debug("Registered kerneltask misc device\n");
 	}
 
 	return ret;
@@ -204,8 +204,8 @@ static void __exit task18_exit(void)
 	struct identity *temp;
 	struct list_head *pos, *q;
 
-	pr_debug("De-registered eudyptula misc device\n");
-	misc_deregister(&eudyptula_dev);
+	pr_debug("De-registered kerneltask misc device\n");
+	misc_deregister(&kerneltask_dev);
 
 	pr_debug("waking-up thread for termination execution\n");
 	spin_lock(&task_ctx.lock);

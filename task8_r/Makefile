@@ -1,5 +1,5 @@
 #################################################################
-#	eudyptula - task6 - Makefile								#
+#	kerneltask - task6 - Makefile								#
 #																#
 #	Author: Omer Dagan											#
 #	Date: 2 2.4.16												#

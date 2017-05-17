@@ -1,8 +1,8 @@
 /*
- *   task6.c - Task 8 eudyptula.
+ *   task6.c - Task 8 kerneltask.
  *   create a loadable kernel module and makefile
  *   implement 'debugfs entries'
- *   1. create subdirectory 'eudyptula'
+ *   1. create subdirectory 'kerneltask'
  *   2. create a file called 'id' mode 666 - same as task6
  *   3. add a file called 'jiffies'mode 444 - read return kernel jiffies
  *   4. add a file 'foo' mode 644 - write data upto a PAGE size,
@@ -78,7 +78,7 @@ static const struct file_operations foo_fops = {
 static ssize_t id_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
 
-	char ret_string[] = "eudyptula\n";
+	char ret_string[] = "kerneltask\n";
 
 	if (*ppos == sizeof(ret_string))
 		return 0;
@@ -150,7 +150,7 @@ static int __init task8_init(void)
 	struct dentry *debug_entry = NULL;
 
 	/*create the debugfs directory*/
-	debug_dir = debugfs_create_dir("eudyptula", NULL);
+	debug_dir = debugfs_create_dir("kerneltask", NULL);
 	if (!debug_dir) {
 		pr_info("could not create dir - exiting...");
 		return -ENODEV;
@@ -182,7 +182,7 @@ cleanup_debugfs:
 
 static void __exit task8_exit(void)
 {
-	pr_debug("De-registered eudyptula debugfs module\n");
+	pr_debug("De-registered kerneltask debugfs module\n");
 	kfree(foo_data);
 	debugfs_remove_recursive(debug_dir);
 }

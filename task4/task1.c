@@ -1,5 +1,5 @@
 /*	  
- *   task1.c - Task 1 eudyptula.						
+ *   task1.c - Task 1 kerneltask.						
  *   create a loadable kernel module and makefile		
  *															
  *		Author: Omer Dagan								

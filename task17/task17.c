@@ -1,7 +1,7 @@
 /*
- *   task6.c - Task 6 eudyptula.
+ *   task6.c - Task 6 kerneltask.
  *   create a loadable kernel module and makefile
- *   module will open a misc device /dev/eudyptula
+ *   module will open a misc device /dev/kerneltask
  *
  *		Author: Omer Dagan
  *		Date: 21.4.16
@@ -44,9 +44,9 @@ static const struct file_operations task17_fops = {
 	.write	= task17_write,
 };
 
-static struct miscdevice eudyptula_dev = {
+static struct miscdevice kerneltask_dev = {
 	.minor = MISC_DYNAMIC_MINOR,
-	.name = "eudyptula",
+	.name = "kerneltask",
 	.fops = &task17_fops,
 	.mode = S_IWUGO
 };
@@ -70,18 +70,18 @@ static int __init task17_init(void)
 
 	/* Setup the thread */
 	task_ctx.f_wait = 0; /*condition for wait on queue*/
-	task_ctx.task_thread = kthread_run(run_thread, NULL, "eudyptula"); /*thread is stopped*/
+	task_ctx.task_thread = kthread_run(run_thread, NULL, "kerneltask"); /*thread is stopped*/
 	if (IS_ERR(task_ctx.task_thread)) {
 		ret = PTR_ERR(task_ctx.task_thread);
 		return ret;
 	}
 
-	ret = misc_register(&eudyptula_dev); /* register the misc device*/
+	ret = misc_register(&kerneltask_dev); /* register the misc device*/
 	if (ret) {
-		pr_debug("Unable to register eudyptula misc device\n");
+		pr_debug("Unable to register kerneltask misc device\n");
 		return ret;
 	} else {
-		pr_debug("Registered eudyptula misc device\n");
+		pr_debug("Registered kerneltask misc device\n");
 	}
 
 	return ret;
@@ -89,11 +89,11 @@ static int __init task17_init(void)
 
 static void __exit task17_exit(void)
 {
-	pr_debug("De-registered eudyptula misc device\n");
+	pr_debug("De-registered kerneltask misc device\n");
 	task_ctx.f_wait = 1;
 	wake_up_all(&task_ctx.wee_wait);
 
-	misc_deregister(&eudyptula_dev);
+	misc_deregister(&kerneltask_dev);
 }
 
 module_init(task17_init);

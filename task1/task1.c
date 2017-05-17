@@ -1,5 +1,5 @@
 /*
- *   task5.c - Task 5 eudyptula.						
+ *   task5.c - Task 5 kerneltask.						
  *   create a loadable kernel module and makefile		
  *   module is loaded on USB-keyboard connect
  *															

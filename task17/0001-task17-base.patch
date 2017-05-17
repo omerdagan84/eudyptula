@@ -19,7 +19,7 @@ index 0000000..1e476c9
 +++ b/task17/Makefile
 @@ -0,0 +1,16 @@
 +#################################################################
-+#	eudyptula - task17 - Makefile								#
++#	kerneltask - task17 - Makefile								#
 +#																#
 +#	Author: Omer Dagan											#
 +#	Date: 11.9.16												#
@@ -46,18 +46,18 @@ index 0000000..22b72c1
 +sudo insmod task6.ko &&
 +
 +echo "change read/write permissions" &&
-+sudo chmod 666 /dev/eudyptula
++sudo chmod 666 /dev/kerneltask
 +
 +echo "test read operation"
-+cat /dev/eudyptula
++cat /dev/kerneltask
 +
 +echo "test write operation - wrong value"
-+echo "echo omerdaagn > /dev/eudyptula"
-+echo omerdaagn > /dev/eudyptula
++echo "echo omerdaagn > /dev/kerneltask"
++echo omerdaagn > /dev/kerneltask
 +
 +echo "test write operation - correct value"
-+echo "echo omerdagan > /dev/eudyptula"
-+echo acef8c84aaa6 > /dev/eudyptula
++echo "echo omerdagan > /dev/kerneltask"
++echo acef8c84aaa6 > /dev/kerneltask
 +
 +echo "show the kernel log to prove operation"
 +dmesg
@@ -71,9 +71,9 @@ index 0000000..7537fd5
 +++ b/task17/task17.c
 @@ -0,0 +1,70 @@
 +/*
-+ *   task6.c - Task 6 eudyptula.
++ *   task6.c - Task 6 kerneltask.
 + *   create a loadable kernel module and makefile
-+ *   module will open a misc device /dev/eudyptula
++ *   module will open a misc device /dev/kerneltask
 + *
 + *		Author: Omer Dagan
 + *		Date: 21.4.16
@@ -114,9 +114,9 @@ index 0000000..7537fd5
 +	.write	= task17_write,
 +};
 +
-+static struct miscdevice eudyptula_dev = {
++static struct miscdevice kerneltask_dev = {
 +	MISC_DYNAMIC_MINOR,
-+	"eudyptula",
++	"kerneltask",
 +	&task17_fops
 +};
 +
@@ -124,18 +124,18 @@ index 0000000..7537fd5
 +{
 +	int ret;
 +
-+	ret = misc_register(&eudyptula_dev);
++	ret = misc_register(&kerneltask_dev);
 +	if (ret)
-+		pr_debug("Unable to register eudyptula misc device\n");
++		pr_debug("Unable to register kerneltask misc device\n");
 +	else
-+		pr_debug("Registered eudyptula misc device\n");
++		pr_debug("Registered kerneltask misc device\n");
 +	return ret;
 +}
 +
 +static void __exit task17_exit(void)
 +{
-+	pr_debug("De-registered eudyptula misc device\n");
-+	misc_deregister(&eudyptula_dev);
++	pr_debug("De-registered kerneltask misc device\n");
++	misc_deregister(&kerneltask_dev);
 +}
 +
 +module_init(task17_init);

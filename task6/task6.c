@@ -1,7 +1,7 @@
 /*
- *   task6.c - Task 6 eudyptula.
+ *   task6.c - Task 6 kerneltask.
  *   create a loadable kernel module and makefile
- *   module will open a misc device /dev/eudyptula
+ *   module will open a misc device /dev/kerneltask
  *
  *		Author: Omer Dagan
  *		Date: 21.4.16
@@ -20,7 +20,7 @@
 static ssize_t task6_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
 
-	char ret_string[] = "eudyptula\n";
+	char ret_string[] = "kerneltask\n";
 
 	if (*ppos == sizeof(ret_string))
 		return 0;
@@ -58,27 +58,27 @@ static const struct file_operations task6_fops = {
 	.read	= task6_read,
 	.write	= task6_write,
 };
-static struct miscdevice eudyptula_dev = {
+static struct miscdevice kerneltask_dev = {
 	MISC_DYNAMIC_MINOR,
-	"eudyptula",
+	"kerneltask",
 	&task6_fops
 };
 static int __init task6_init(void)
 {
 	int ret;
 
-	ret = misc_register(&eudyptula_dev);
+	ret = misc_register(&kerneltask_dev);
 	if (ret)
-		pr_debug("Unable to register eudyptula misc device\n");
+		pr_debug("Unable to register kerneltask misc device\n");
 	else
-		pr_debug("Registered eudyptula misc device\n");
+		pr_debug("Registered kerneltask misc device\n");
 	return ret;
 }
 
 static void __exit task6_exit(void)
 {
-	pr_debug("De-registered eudyptula misc device\n");
-	misc_deregister(&eudyptula_dev);
+	pr_debug("De-registered kerneltask misc device\n");
+	misc_deregister(&kerneltask_dev);
 }
 
 module_init(task6_init);

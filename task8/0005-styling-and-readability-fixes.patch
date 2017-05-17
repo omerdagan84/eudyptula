@@ -12,7 +12,7 @@ index cfdf0fb..9995772 100644
 --- a/task8/task8.c
 +++ b/task8/task8.c
 @@ -5,7 +5,7 @@
-  *   1. create subdirectory 'eudyptula'
+  *   1. create subdirectory 'kerneltask'
   *   2. create a file called 'id' mode 666 - same as task6
   *   3. add a file called 'jiffies'mode 444 - read return kernel jiffies
 - *   4. add a file 'foo' mode 644 - write data upto a PAGE size, 
@@ -47,7 +47,7 @@ index cfdf0fb..9995772 100644
 +static ssize_t id_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
  {
  
- 	char ret_string[] = "eudyptula\n";
+ 	char ret_string[] = "kerneltask\n";
 @@ -89,7 +88,7 @@ static ssize_t task8_read(struct file *file, char __user *buf, size_t count, lof
  	return *ppos;
  }
@@ -85,8 +85,8 @@ index cfdf0fb..9995772 100644
  	struct dentry *debug_entry = NULL;
  
  	/*create the debugfs directory*/
--	debug_dir = debugfs_create_dir("eudyptula",NULL);
-+	debug_dir = debugfs_create_dir("eudyptula", NULL);
+-	debug_dir = debugfs_create_dir("kerneltask",NULL);
++	debug_dir = debugfs_create_dir("kerneltask", NULL);
  	if (!debug_dir) {
  		pr_info("could not create dir - exiting...");
  		return -ENODEV;

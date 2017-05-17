@@ -13,12 +13,12 @@ index 0ded83b..125c570 100644
 +++ b/task8/task8.c
 @@ -1,10 +1,16 @@
  /*
-- *   task6.c - Task 6 eudyptula.
-+ *   task6.c - Task 8 eudyptula.
+- *   task6.c - Task 6 kerneltask.
++ *   task6.c - Task 8 kerneltask.
   *   create a loadable kernel module and makefile
-- *   module will open a misc device /dev/eudyptula
+- *   module will open a misc device /dev/kerneltask
 + *   implement 'debugfs entries'
-+ *   1. create subdirectory 'eudyptula'
++ *   1. create subdirectory 'kerneltask'
 + *   2. create a file called 'id' mode 666 - same as task6
 + *   3. add a file called 'jiffies'mode 444 - read return kernel jiffies
 + *   4. add a file 'foo' mode 644 - write data upto a PAGE size, 
@@ -45,7 +45,7 @@ index 0ded83b..125c570 100644
 +static ssize_t task8_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
  {
  
- 	char ret_string[] = "eudyptula\n";
+ 	char ret_string[] = "kerneltask\n";
 @@ -34,7 +43,7 @@ static ssize_t task6_read(struct file *file, char __user *buf, size_t count, lof
  	return *ppos;
  }
@@ -65,9 +65,9 @@ index 0ded83b..125c570 100644
 -	.read	= task6_read,
 -	.write	= task6_write,
 -};
--static struct miscdevice eudyptula_dev = {
+-static struct miscdevice kerneltask_dev = {
 -	MISC_DYNAMIC_MINOR,
--	"eudyptula",
+-	"kerneltask",
 -	&task6_fops
 +	.read	= task8_read,
 +	.write	= task8_write,
@@ -78,17 +78,17 @@ index 0ded83b..125c570 100644
  {
 -	int ret;
 +	/*create the debugfs directory*/
-+	debug_dir = debugfs_create_dir("eudyptula",NULL);
++	debug_dir = debugfs_create_dir("kerneltask",NULL);
 +	if (!debug_dir) {
 +		pr_info("could not create dir - exiting...");
 +		return -ENODEV;
 +	}
  
--	ret = misc_register(&eudyptula_dev);
+-	ret = misc_register(&kerneltask_dev);
 -	if (ret)
--		pr_debug("Unable to register eudyptula misc device\n");
+-		pr_debug("Unable to register kerneltask misc device\n");
 -	else
--		pr_debug("Registered eudyptula misc device\n");
+-		pr_debug("Registered kerneltask misc device\n");
 -	return ret;
 +	debug_id = debugfs_create_file("id", 0666, debug_dir, NULL, &task8_fops);
 +	if (!debug_id)
@@ -103,9 +103,9 @@ index 0ded83b..125c570 100644
 -static void __exit task6_exit(void)
 +static void __exit task8_exit(void)
  {
--	pr_debug("De-registered eudyptula misc device\n");
--	misc_deregister(&eudyptula_dev);
-+	pr_debug("De-registered eudyptula debugfs module\n");
+-	pr_debug("De-registered kerneltask misc device\n");
+-	misc_deregister(&kerneltask_dev);
++	pr_debug("De-registered kerneltask debugfs module\n");
 +	debugfs_remove_recursive(debug_dir);
  }
  

@@ -1,8 +1,8 @@
 /*
- *   task9.c - Task 9 eudyptula.
+ *   task9.c - Task 9 kerneltask.
  *   create a loadable kernel module and makefile
  *   implement 'sysfs entries'
- *   1. create subdirectory 'eudyptula' under '/sys/kernel'
+ *   1. create subdirectory 'kerneltask' under '/sys/kernel'
  *   2. create a file called 'id' mode 666 - same as task6
  *   3. add a file called 'jiffies'mode 444 - read return kernel jiffies
  *   4. add a file 'foo' mode 644 - write data upto a PAGE size,
@@ -25,7 +25,7 @@
 #include <linux/sysfs.h>
 
 #define MAX_INPUT_SIZE 20
-static struct kobject *eudyptula_kobj;
+static struct kobject *kerneltask_kobj;
 static char *foo_data;
 
 DEFINE_MUTEX(fops_lock);
@@ -62,7 +62,7 @@ static struct kobj_attribute foo_attribute =
 
 static ssize_t id_read(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
-	return sprintf(buf, "eudyptula\n");
+	return sprintf(buf, "kerneltask\n");
 }
 
 static ssize_t id_write(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
@@ -110,13 +110,13 @@ static int __init task8_init(void)
 {
 	int retval;
 
-	eudyptula_kobj = kobject_create_and_add("eudyptula", kernel_kobj);
-	if (!eudyptula_kobj)
+	kerneltask_kobj = kobject_create_and_add("kerneltask", kernel_kobj);
+	if (!kerneltask_kobj)
 		return -ENOMEM;
 
-	retval = sysfs_create_group(eudyptula_kobj, &attr_group);
+	retval = sysfs_create_group(kerneltask_kobj, &attr_group);
 	if (retval)
-		kobject_put(eudyptula_kobj);
+		kobject_put(kerneltask_kobj);
 
 	foo_data = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL);
 
@@ -126,9 +126,9 @@ static int __init task8_init(void)
 
 static void __exit task8_exit(void)
 {
-	pr_debug("De-registered eudyptula debugfs module\n");
+	pr_debug("De-registered kerneltask debugfs module\n");
 	kfree(foo_data);
-	kobject_put(eudyptula_kobj);
+	kobject_put(kerneltask_kobj);
 }
 
 MODULE_LICENSE("GPL"); /*cannot load debugfs without this*/

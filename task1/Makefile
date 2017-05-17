@@ -1,5 +1,5 @@
 #################################################################
-#	eudyptula - task1 - Makefile								#
+#	kerneltask - task1 - Makefile								#
 #																#
 #	Author: Omer Dagan											#
 #	Date: 11.4.16												#

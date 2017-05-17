@@ -1,7 +1,7 @@
 /*
- *   task18.c - Task 18 eudyptula.
+ *   task18.c - Task 18 kerneltask.
  *   create a loadable kernel module and makefile
- *   module will open a misc device /dev/eudyptula
+ *   module will open a misc device /dev/kerneltask
  *
  *		Author: Omer Dagan
  *		Date: 02.01.17

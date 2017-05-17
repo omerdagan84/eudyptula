@@ -1,5 +1,5 @@
 #################################################################
-#	eudyptula - task12 - Makefile								#
+#	kerneltask - task12 - Makefile								#
 #																#
 #	Author: Omer Dagan											#
 #	Date: 9.5.16												#
