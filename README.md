@@ -24,8 +24,6 @@ responding to this task, so that I can figure out who to attribute it
 to.  You can just respond to the task with the answers and all should be
 fine.
 
-If you forgot, your id is "7c1caf2f50d1".  But of course you have not
-forgotten that yet, you are better than that.
 
 This is Task 02 of the Eudyptula Challenge
 ------------------------------------------
@@ -66,10 +64,6 @@ Remember to use your ID assigned to you in the Subject: line when
 responding to this task, so that I can figure out who to attribute it
 to.
 
-If you forgot, your id is "7c1caf2f50d1".  But why do I repeat myself?
-Of course you know your id, you made it through the first task just fine
-with it.
-
 This is Task 03 of the Eudyptula Challenge
 ------------------------------------------
 
@@ -93,9 +87,6 @@ Remember to use your ID assigned to you in the Subject: line when
 responding to this task, so that I can figure out who to attribute it
 to.
 
-If you forgot, your id is "7c1caf2f50d1".  Surely I don't need to keep
-saying this right?  I know, _you_ wouldn't forget, but someone else, of
-course they would, so I'll just leave it here for those "others".
 
 This is Task 04 of the Eudyptula Challenge
 ------------------------------------------
@@ -141,8 +132,7 @@ coding style, do not remove lines of code.
 
 As always, please remember to use your ID assigned to you in the
 Subject: line when responding to this task, so that I can figure out who
-to attribute it to.  And if you forgot (which of course you have not,
-we've been through all of this before), your id is "7c1caf2f50d1".
+to attribute it to.  
 
 This is Task 05 of the Eudyptula Challenge
 ------------------------------------------
@@ -161,8 +151,6 @@ Yes, so simple, and yet, it's a bit tricky.  As a hint, go read chapter
 14 of the book, "Linux Device Drivers, 3rd edition."  Don't worry, it's
 free, and online, no need to go buy anything.
 
-As always, please remember to use your ID assigned to you, yadda yadda
-yadda...  It's "7c1caf2f50d1" of course.
 
 This is Task 06 of the Eudyptula Challenge
 ------------------------------------------
@@ -194,8 +182,6 @@ The task this time is this:
     unregistered when it is unloaded.
   - Provide some "proof" this all works properly.
 
-As you will be putting your id into the kernel module, of course you
-haven't forgotten it, but just to be safe, it's "7c1caf2f50d1".
 
 This is Task 07 of the Eudyptula Challenge
 ------------------------------------------
@@ -223,9 +209,6 @@ kernel source itself.  It's a great read, and should tell you all you
 never wanted to know about what Linux kernel developers do and how they
 do it.
 
-As always, please respond to this challenge with your id.  I know you
-know what it is.  I'll not even include it this time, I trust you.
-Don't make me feel that is a mistake.
 
 This is Task 08 of the Eudyptula Challenge
 ------------------------------------------
@@ -266,8 +249,6 @@ The task, in specifics is:
     up, and any memory allocated is freed.
   - Provide some "proof" this all works.
 
-Again, you are using your id in the code, so you know what it is by now,
-no need to repeat it again.
 
 This is Task 09 of the Eudyptula Challenge
 ------------------------------------------
@@ -357,10 +338,6 @@ For this task:
 Submit both the patch, in proper kernel commit form, and "proof" of it
 working properly on your machine.
 
-And as always, please use your id in the subject line.  If you happened
-to forget it, as it has been a while since I reminded you of it, it is
-"7c1caf2f50d1".
-
 This is Task 12 of the Eudyptula Challenge
 ------------------------------------------
 
@@ -429,10 +406,6 @@ task 04, that does the following:
    Bonus points for properly checking return values of the above
    functions.
 
-As always, please send the full module (following the proper kernel
-coding style rules), and "proof" of it working properly.  And remember
-to use your id of "7c1caf2f50d1" in the Subject line properly.
-
 This is Task 13 of the Eudyptula Challenge
 ------------------------------------------
 
@@ -489,8 +462,6 @@ figure out how to apply it.
 
 Also provide some kind of proof that you tested the patch.
 
-And, in case you happened to forget it, your id is "7c1caf2f50d1".
-
 This is Task 15 of the Eudyptula Challenge
 ------------------------------------------
 
@@ -518,7 +489,7 @@ For this task:
     64bit value (low_id being the lower 32bits of the id, high_id being
     the upper 32bits of the id).
   - If the id value matches your id (which of course you know as
-    "7c1caf2f50d1", then the syscall returns success.  Otherwise it
+    "XXXX", then the syscall returns success.  Otherwise it
     returns a return code signifying an invalid value was passed to it.
   - Write a userspace C program that calls the syscall and properly
     exercises it (valid and invalid calls need to be made).
